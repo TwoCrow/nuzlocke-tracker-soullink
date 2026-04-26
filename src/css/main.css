@@ -536,3 +536,100 @@ i.icon.check::before,
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
+/* ── Status row highlighting ───────────────────────────────────────── */
+
+tr.status-inparty {
+	background-color: rgba(76, 175, 80, 0.13) !important;
+}
+
+tr.status-missed,
+tr.status-deceased {
+	background-color: #f4f4f4 !important;
+}
+
+tr.status-missed > td,
+tr.status-deceased > td {
+	color: rgba(0, 0, 0, 0.3) !important;
+}
+
+tr.status-missed .ui.dropdown,
+tr.status-deceased .ui.dropdown {
+	color: rgba(0, 0, 0, 0.3) !important;
+	background: #f4f4f4 !important;
+	border-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+tr.status-missed .ui.input > input,
+tr.status-deceased .ui.input > input {
+	color: rgba(0, 0, 0, 0.3) !important;
+	background: #f4f4f4 !important;
+	border-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+tr.status-missed i.icon::before,
+tr.status-deceased i.icon::before,
+tr.status-missed i.pkmn:not(.icon)::before,
+tr.status-deceased i.pkmn:not(.icon)::before {
+	opacity: 0.25;
+}
+
+.dark-theme tr.status-missed,
+.dark-theme tr.status-deceased {
+	background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-theme tr.status-missed > td,
+.dark-theme tr.status-deceased > td {
+	color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark-theme tr.status-missed .ui.dropdown,
+.dark-theme tr.status-deceased .ui.dropdown {
+	color: rgba(255, 255, 255, 0.2) !important;
+	background: transparent !important;
+	border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme tr.status-missed .ui.input > input,
+.dark-theme tr.status-deceased .ui.input > input {
+	color: rgba(255, 255, 255, 0.2) !important;
+	background: transparent !important;
+	border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ── Filter bar ─────────────────────────────────────────────────────── */
+
+.filter-bar {
+	display: flex;
+	align-items: center;
+	gap: 1.25em;
+	padding: .5em 0 .75em;
+	flex-wrap: wrap;
+}
+
+.filter-label {
+	font-weight: 600;
+	color: rgba(0, 0, 0, .55);
+	font-size: .9em;
+}
+
+.filter-item {
+	cursor: pointer;
+	user-select: none;
+	color: rgba(0, 0, 0, .65);
+	font-size: .9em;
+}
+
+.filter-item input[type="checkbox"] {
+	margin-right: .3em;
+	cursor: pointer;
+}
+
+.dark-theme .filter-label {
+	color: rgba(255, 255, 255, .5);
+}
+
+.dark-theme .filter-item {
+	color: rgba(255, 255, 255, .65);
+}

@@ -44,6 +44,13 @@ function renderMain() {
 					'<button class="ui basic icon button gameSettings" title="Game settings"><i class="settings icon"></i></button>' +
 				'</div>' +
 			'</div>' +
+			'<div class="filter-bar">' +
+				'<span class="filter-label">Show:</span>' +
+				'<label class="filter-item"><input type="checkbox" class="filter-checkbox" data-filter="missed" checked> Missed</label>' +
+				'<label class="filter-item"><input type="checkbox" class="filter-checkbox" data-filter="deceased" checked> Deceased</label>' +
+				'<label class="filter-item"><input type="checkbox" class="filter-checkbox" data-filter="stored" checked> Stored</label>' +
+				'<label class="filter-item"><input type="checkbox" class="filter-checkbox" data-filter="blank" checked> Blank Encounters</label>' +
+			'</div>' +
 			'<table class="ui table sortable selectable">' +
 				'<thead>' +
 					'<tr>' +
@@ -95,7 +102,10 @@ function renderLocations(game, darkTheme) {
 		const nicknameB = localStorage.getItem(game.id + location.value + '-nicknameB');
 		const locationStatus = localStorage.getItem(game.id + location.value + '-status');
 
-		string += '<tr' + (location.order !== undefined ? ' class="customLocation"' : '') + '>' +
+		const statusClass = locationStatus ? 'status-' + locationStatus : '';
+		const customClass = location.order !== undefined ? 'customLocation' : '';
+		const trClass = [customClass, statusClass].filter(c => c).join(' ');
+		string += '<tr' + (trClass ? ' class="' + trClass + '"' : '') + '>' +
 			'<td data-sort-value="' + index + '">' + escapeHTML(location.name) + '</td>' +
 			'<td data-sort-value="' + (encounterA ? escapeHTML(encounterA) : '') + '">' +
 				'<div data-name="' + (nameA ? escapeHTML(nameA) : '') + '" data-value="' + (encounterA ? escapeHTML(encounterA) : '') + '" data-name-key="' + game.id + locationValue + '-nameA" id="' + game.id + locationValue + '-encounterA" class="ui' + (darkTheme ? ' inverted' : '') + ' fluid search selection long dropdown encounter-picker" aria-label="' + location.name + ' encounter A">' +
@@ -124,16 +134,14 @@ function renderLocations(game, darkTheme) {
 				'</div>' +
 			'</td>' +
 			'<td data-sort-value="' + (locationStatus ? escapeHTML(locationStatus) : '') + '">' +
-				'<div id="' + game.id + locationValue + '-status" class="ui' + (darkTheme ? ' inverted' : '') + ' fluid selection long dropdown" aria-label="' + location.name + ' status">' +
+				'<div id="' + game.id + locationValue + '-status" class="ui' + (darkTheme ? ' inverted' : '') + ' fluid selection long dropdown status-picker" aria-label="' + location.name + ' status">' +
 					'<input value="' + (locationStatus ? escapeHTML(locationStatus) : '') + '" name="status" type="hidden">' +
 					'<i class="dropdown icon"></i>' +
 					'<div class="default text">Status</div>' +
 					'<div class="menu">' +
-						'<div class="item" data-value="captured"><i class="check icon"></i>Captured</div>' +
-						'<div class="item" data-value="received"><i class="gift icon"></i>Received</div>' +
-						'<div class="item" data-value="traded"><i class="exchange icon"></i>Traded</div>' +
-						'<div class="item" data-value="missed"><i class="ban icon"></i>Missed</div>' +
+						'<div class="item" data-value="inparty"><i class="check icon"></i>In Party</div>' +
 						'<div class="item" data-value="stored"><i class="hdd icon"></i>Stored</div>' +
+						'<div class="item" data-value="missed"><i class="ban icon"></i>Missed</div>' +
 						'<div class="item" data-value="deceased"><i class="skull icon"></i>Deceased</div>' +
 					'</div>' +
 				'</div>' +
@@ -393,11 +401,43 @@ function updateTableMode(game) {
 	}
 }
 
+function applyFilters(game) {
+	const tabEl = $('[data-tab="' + game + '"]');
+	const showMissed = tabEl.find('.filter-checkbox[data-filter="missed"]').is(':checked');
+	const showDeceased = tabEl.find('.filter-checkbox[data-filter="deceased"]').is(':checked');
+	const showStored = tabEl.find('.filter-checkbox[data-filter="stored"]').is(':checked');
+	const showBlank = tabEl.find('.filter-checkbox[data-filter="blank"]').is(':checked');
+
+	$('#' + game + '-locations tr').each(function() {
+		const $row = $(this);
+		const hasMissed = $row.hasClass('status-missed');
+		const hasDeceased = $row.hasClass('status-deceased');
+		const hasStored = $row.hasClass('status-stored');
+		const hasInParty = $row.hasClass('status-inparty');
+		const isBlank = !hasMissed && !hasDeceased && !hasStored && !hasInParty;
+
+		const show =
+			(!hasMissed || showMissed) &&
+			(!hasDeceased || showDeceased) &&
+			(!hasStored || showStored) &&
+			(!isBlank || showBlank);
+
+		$row.toggle(show);
+	});
+}
+
 function initTab(tab) {
 	$('#' + tab + '-locations .ui.dropdown').dropdown({
 		onChange: function(value, name) {
 			$(this).closest('td').data('sortValue', value);
 			localStorage.setItem($(this).prop('id'), value);
+
+			if ($(this).hasClass('status-picker')) {
+				const row = $(this).closest('tr');
+				row.removeClass('status-inparty status-stored status-missed status-deceased');
+				if (value) row.addClass('status-' + value);
+				applyFilters(tab);
+			}
 		},
 	});
 
@@ -554,6 +594,7 @@ function updateTab(game) {
 	$('#' + game + '-locations').html(renderLocations(games[game], localStorage.getItem('darkTheme') === 'true'));
 	initTab(game);
 	updateTableMode(game);
+	applyFilters(game);
 
 	games[game].loaded = true;
 }
@@ -627,6 +668,9 @@ $(() => {
 			localStorage.removeItem(selectedGame + '-player-b-name');
 		}
 		updateTableMode(selectedGame);
+	}).on('change', '.filter-checkbox', function() {
+		const game = $(this).closest('[data-tab]').data('tab');
+		applyFilters(game);
 	});
 
 	$('#resetModal').modal({
@@ -737,4 +781,5 @@ $(() => {
 
 	initTab(selectedGame);
 	updateTableMode(selectedGame);
+	applyFilters(selectedGame);
 });
