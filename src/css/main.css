@@ -509,3 +509,30 @@ i.icon.check::before,
 	content: '';
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M471 105c12 13 12 33 0 46L215 407a32 32 0 0 1-46 0L41 279a32 32 0 0 1 46-46l105 106 233-234c13-12 33-12 46 0z'/%3E%3C/svg%3E");
 }
+
+/* ── SoulLink tracker layout ───────────────────────────────────────── */
+
+/* Expand container to fill most of the viewport on larger screens */
+@media only screen and (min-width: 768px) {
+	body > .pusher > .ui.container {
+		width: calc(100% - 2em) !important;
+		max-width: none;
+	}
+}
+
+/* Fixed layout so columns never resize as data is entered */
+.ui.sortable.table {
+	table-layout: fixed;
+}
+
+/* Collapse B-side columns when in Nuzlocke mode */
+.table-nuzlocke-mode .soullink-only {
+	display: none !important;
+}
+
+/* Keep long location names from blowing out the first column */
+.ui.table tbody tr td:first-child {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

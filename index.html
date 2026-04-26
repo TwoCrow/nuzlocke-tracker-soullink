@@ -18,9 +18,10 @@
 		<link rel="icon" href="favicon.svg">
 		<link rel="mask-icon" href="mask-icon.svg" color="#1da1da">
 		<link rel="apple-touch-icon" href="apple-touch-icon.png">
-		<link rel="manifest" href="manifest.json">
 
-		<link rel="stylesheet" href="dist/css/main.min.css?2023-01-10">
+		<link rel="stylesheet" href="src/css/fomantic.css">
+		<link rel="stylesheet" href="src/css/main.css">
+		<link rel="stylesheet" href="src/css/sprites.css">
 		<script>
 			document.documentElement.className = 'js';
 		</script>
@@ -112,12 +113,15 @@
 					<input type="text" id="customLocationName" required>
 				</div>
 				<div class="field">
-					<label for="locationOrder">Order</label>
-					<div id="locationOrder" class="ui selection dropdown">
-						<input name="location" type="hidden" required>
-						<div class="default text">Select a location</div>
-						<i class="dropdown icon"></i>
-						<div class="menu"></div>
+					<label>Order</label>
+					<div class="ui radio checkbox">
+						<input type="radio" id="locationBefore" name="locationPlacement" value="before">
+						<label for="locationBefore">Before</label>
+					</div>
+					&nbsp;&nbsp;
+					<div class="ui radio checkbox">
+						<input type="radio" id="locationAfter" name="locationPlacement" value="after" checked>
+						<label for="locationAfter">After</label>
 					</div>
 				</div>
 			</div>
@@ -127,28 +131,43 @@
 			</div>
 		</div>
 
-		<div id="settingsModal" class="ui modal tiny">
+		<div id="settingsModal" class="ui modal small">
 			<div class="header">Game settings</div>
 			<div class="content ui form">
 				<div class="field">
-					<div class="ui checkbox">
-						<input id="disableDexLimit" type="checkbox">
-						<label for="disableDexLimit">Allow all Pokémon</label>
+					<label>Mode</label>
+					<div class="ui radio checkbox">
+						<input type="radio" id="modeNuzlocke" name="gameMode" value="nuzlocke">
+						<label for="modeNuzlocke">Nuzlocke</label>
+					</div>
+					&nbsp;&nbsp;
+					<div class="ui radio checkbox">
+						<input type="radio" id="modeSoulLink" name="gameMode" value="soullink">
+						<label for="modeSoulLink">SoulLink</label>
+					</div>
+				</div>
+				<div id="playerNamesSection">
+					<div class="field">
+						<label for="playerAName">Player A Name</label>
+						<input type="text" id="playerAName" placeholder="Player A" autocomplete="off">
+					</div>
+					<div class="field">
+						<label for="playerBName">Player B Name</label>
+						<input type="text" id="playerBName" placeholder="Player B" autocomplete="off">
 					</div>
 				</div>
 
-<!-- 				<div class="field">
-					<div class="ui checkbox">
-						<input id="allowCustomPokemon" type="checkbox">
-						<label for="allowCustomPokemon">Allow custom Pokémon</label>
-					</div>
-				</div> -->
 			</div>
 			<div class="actions">
 				<div class="ui cancel button">Close</div>
 			</div>
 		</div>
 
-		<script src="dist/js/main.min.js?2023-01-10"></script>
+		<script src="src/js/jquery.js"></script>
+		<script src="src/js/fomantic.js"></script>
+		<script src="src/js/locations.js"></script>
+		<script src="src/js/pokemon.js"></script>
+		<script src="src/js/plugins.js"></script>
+		<script src="src/js/main.js"></script>
 	</body>
 </html>
