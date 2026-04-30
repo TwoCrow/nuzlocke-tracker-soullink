@@ -49,12 +49,10 @@ Click the **Games** dropdown at the top-left and select the game you are playing
 
 | Status | Meaning |
 |--------|---------|
-| Captured | Successfully caught and in the party or box |
-| Received | Obtained as a gift (starter, fossil, etc.) |
-| Traded | Received via in-game trade |
+| In Party | Currently in the party |
+| Stored | Stored in the PC |
 | Missed | Fainted or ran before being caught |
-| Stored | Deliberately kept in a box |
-| Deceased | Fainted and considered dead under Nuzlocke rules |
+| Deceased | Dead :( |
 
 ### Adding a custom location
 
