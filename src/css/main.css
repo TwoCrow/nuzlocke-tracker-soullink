@@ -633,3 +633,219 @@ tr.status-deceased i.pkmn:not(.icon)::before {
 .dark-theme .filter-item {
 	color: rgba(255, 255, 255, .65);
 }
+
+/* ── Party / Box / Cemetery overview ───────────────────────────────────── */
+
+.pokemon-overview {
+	padding: .6em 0 .75em;
+	border-bottom: 1px solid rgba(0, 0, 0, .08);
+	margin-bottom: .5em;
+}
+
+/* Party — centered column layout */
+.overview-party {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: .3em;
+	margin-bottom: .75em;
+}
+
+/* SoulLink: two player sections side by side */
+.overview-party--soullink {
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 2.5em;
+}
+
+.overview-party-header {
+	font-size: .75em;
+	font-weight: 700;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: rgba(0, 0, 0, .4);
+	margin-bottom: .1em;
+}
+
+/* One section per player in SoulLink, or just the slots in Nuzlocke */
+.overview-player-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: .5em;
+}
+
+.overview-player-name {
+	font-size: 1em;
+	font-weight: 600;
+	color: rgba(0, 0, 0, .7);
+}
+
+.overview-party-slots {
+	display: flex;
+	gap: 3px;
+	align-items: center;
+}
+
+/* Pokemon icon container — square slot, sprite centered */
+.overview-pkmn {
+	position: relative;
+	width: 56px;
+	height: 56px;
+	display: inline-block;
+	vertical-align: bottom;
+	flex-shrink: 0;
+}
+
+/* Center the 68px-wide sprite horizontally in the 56px slot */
+.overview-pkmn i.pkmn:not(.icon)::before {
+	top: 0;
+	left: -6px;
+}
+
+.overview-pkmn i.pkmn:not(.icon) {
+	margin: 0;
+}
+
+.overview-party-pkmn,
+.overview-box-pkmn {
+	cursor: pointer;
+}
+
+.overview-party-pkmn:hover,
+.overview-box-pkmn:hover {
+	opacity: .65;
+}
+
+.overview-dead-pkmn {
+	cursor: default;
+	opacity: .5;
+}
+
+/* Empty party slot — square to match filled slots */
+.overview-slot-empty {
+	width: 56px;
+	height: 56px;
+	border: 2px dashed rgba(0, 0, 0, .15);
+	border-radius: 4px;
+	display: inline-block;
+	flex-shrink: 0;
+	box-sizing: border-box;
+}
+
+/* Storage section — always visible */
+.overview-storage {
+	margin-top: .25em;
+}
+
+/* Tabs */
+.overview-tabs {
+	display: flex;
+	border-bottom: 1px solid rgba(0, 0, 0, .1);
+	margin-bottom: .6em;
+}
+
+.overview-tab {
+	padding: .3em .9em;
+	cursor: pointer;
+	font-size: .85em;
+	color: rgba(0, 0, 0, .5);
+	border: none;
+	border-bottom: 2px solid transparent;
+	background: none;
+	user-select: none;
+	margin-bottom: -1px;
+}
+
+.overview-tab:hover {
+	color: rgba(0, 0, 0, .75);
+}
+
+.overview-tab.active {
+	color: rgba(0, 0, 0, .85);
+	border-bottom-color: #1da1da;
+	font-weight: 600;
+}
+
+.overview-tab-panel {
+	min-height: 56px;
+}
+
+.overview-tab-hidden {
+	display: none;
+}
+
+/* Storage icons */
+.overview-storage-icons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 3px;
+	align-items: flex-end;
+	min-height: 56px;
+	padding-bottom: .2em;
+}
+
+.overview-empty-text {
+	font-size: .82em;
+	color: rgba(0, 0, 0, .35);
+	font-style: italic;
+	align-self: center;
+}
+
+/* Grid wrapper for SoulLink storage rows: name col | icons col */
+.overview-storage-grid {
+	display: grid;
+	grid-template-columns: minmax(60px, auto) 1fr;
+	row-gap: .75em;
+	column-gap: .75em;
+	align-items: start;
+}
+
+/* Make each player row transparent to the grid so name + icons become direct grid items */
+.overview-player-storage {
+	display: contents;
+}
+
+.overview-player-storage .overview-player-name {
+	font-size: 1em;
+	min-width: 60px;
+	align-self: center;
+}
+
+/* Dark theme */
+.dark-theme .pokemon-overview {
+	border-bottom-color: rgba(255, 255, 255, .08);
+}
+
+.dark-theme .overview-party-header {
+	color: rgba(255, 255, 255, .35);
+}
+
+.dark-theme .overview-player-name {
+	color: rgba(255, 255, 255, .8);
+}
+
+.dark-theme .overview-slot-empty {
+	border-color: rgba(255, 255, 255, .18);
+}
+
+.dark-theme .overview-tabs {
+	border-bottom-color: rgba(255, 255, 255, .1);
+}
+
+.dark-theme .overview-tab {
+	color: rgba(255, 255, 255, .4);
+}
+
+.dark-theme .overview-tab:hover {
+	color: rgba(255, 255, 255, .75);
+}
+
+.dark-theme .overview-tab.active {
+	color: rgba(255, 255, 255, .9);
+}
+
+.dark-theme .overview-empty-text {
+	color: rgba(255, 255, 255, .25);
+}

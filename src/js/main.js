@@ -28,6 +28,110 @@ function isSoulLinkMode(game) {
 	return localStorage.getItem(game + '-soullink-mode') === 'true';
 }
 
+function renderOverview(game) {
+	const soulLink = isSoulLinkMode(game);
+	const playerAName = localStorage.getItem(game + '-player-a-name') || 'Player A';
+	const playerBName = localStorage.getItem(game + '-player-b-name') || 'Player B';
+	const storageTab = localStorage.getItem(game + '-storage-tab') || 'box';
+
+	const partyA = [], partyB = [], boxA = [], boxB = [], deadA = [], deadB = [];
+
+	games[game].locations.forEach(function(location) {
+		const status = localStorage.getItem(game + location.value + '-status');
+		const encounterA = localStorage.getItem(game + location.value + '-encounterA');
+		const nameA = localStorage.getItem(game + location.value + '-nameA');
+		const nicknameA = localStorage.getItem(game + location.value + '-nicknameA');
+
+		if (encounterA) {
+			const p = { loc: location.value, encounter: encounterA, name: nameA || encounterA, nickname: nicknameA };
+			if (status === 'inparty') partyA.push(p);
+			else if (status === 'stored') boxA.push(p);
+			else if (status === 'deceased') deadA.push(p);
+		}
+
+		if (soulLink) {
+			const encounterB = localStorage.getItem(game + location.value + '-encounterB');
+			const nameB = localStorage.getItem(game + location.value + '-nameB');
+			const nicknameB = localStorage.getItem(game + location.value + '-nicknameB');
+
+			if (encounterB) {
+				const p = { loc: location.value, encounter: encounterB, name: nameB || encounterB, nickname: nicknameB };
+				if (status === 'inparty') partyB.push(p);
+				else if (status === 'stored') boxB.push(p);
+				else if (status === 'deceased') deadB.push(p);
+			}
+		}
+	});
+
+	function makeIcon(pkmn, side, cls) {
+		const label = pkmn.nickname ? pkmn.nickname + ' (' + pkmn.name + ')' : pkmn.name;
+		return '<div class="overview-pkmn ' + cls + '" data-game="' + game + '" data-loc="' + pkmn.loc + '" data-side="' + side + '" title="' + escapeHTML(label) + '">' +
+			'<i class="pkmn ' + escapeHTML(pkmn.encounter) + '"></i>' +
+			'</div>';
+	}
+
+	function partySlots(pokemons, side) {
+		let html = '';
+		const total = Math.max(6, pokemons.length);
+		for (let i = 0; i < total; i++) {
+			html += i < pokemons.length
+				? makeIcon(pokemons[i], side, 'overview-party-pkmn')
+				: '<div class="overview-slot-empty"></div>';
+		}
+		return '<div class="overview-party-slots">' + html + '</div>';
+	}
+
+	function storageIcons(pokemons, side, cls) {
+		return pokemons.length
+			? pokemons.map(function(p) { return makeIcon(p, side, cls); }).join('')
+			: '<span class="overview-empty-text">None</span>';
+	}
+
+	function storageSection(pokemons, side, label, cls) {
+		const icons = storageIcons(pokemons, side, cls);
+		return soulLink
+			? '<div class="overview-player-storage"><span class="overview-player-name">' + escapeHTML(label) + '</span><div class="overview-storage-icons">' + icons + '</div></div>'
+			: '<div class="overview-storage-icons">' + icons + '</div>';
+	}
+
+	// Party — in SoulLink two players side by side each with "Name's Party" label; in Nuzlocke centered with "Party" header
+	let partyHtml = '<div class="overview-party' + (soulLink ? ' overview-party--soullink' : '') + '">';
+	if (soulLink) {
+		partyHtml += '<div class="overview-player-section"><span class="overview-player-name">' + escapeHTML(playerAName) + "'s Party</span>" + partySlots(partyA, 'A') + '</div>';
+		partyHtml += '<div class="overview-player-section"><span class="overview-player-name">' + escapeHTML(playerBName) + "'s Party</span>" + partySlots(partyB, 'B') + '</div>';
+	} else {
+		partyHtml += '<div class="overview-party-header">Party</div>';
+		partyHtml += partySlots(partyA, 'A');
+	}
+	partyHtml += '</div>';
+
+	// Storage — always visible, two tabs
+	const boxActive = storageTab === 'box';
+	let boxContent, cemeteryContent;
+	if (soulLink) {
+		boxContent = '<div class="overview-storage-grid">' + storageSection(boxA, 'A', playerAName, 'overview-box-pkmn') + storageSection(boxB, 'B', playerBName, 'overview-box-pkmn') + '</div>';
+		cemeteryContent = '<div class="overview-storage-grid">' + storageSection(deadA, 'A', playerAName, 'overview-dead-pkmn') + storageSection(deadB, 'B', playerBName, 'overview-dead-pkmn') + '</div>';
+	} else {
+		boxContent = storageSection(boxA, 'A', '', 'overview-box-pkmn');
+		cemeteryContent = storageSection(deadA, 'A', '', 'overview-dead-pkmn');
+	}
+
+	const storageHtml = '<div class="overview-storage">' +
+		'<div class="overview-tabs">' +
+			'<button class="overview-tab' + (boxActive ? ' active' : '') + '" data-game="' + game + '" data-storage-tab="box">Box</button>' +
+			'<button class="overview-tab' + (!boxActive ? ' active' : '') + '" data-game="' + game + '" data-storage-tab="cemetery">Cemetery</button>' +
+		'</div>' +
+		'<div class="overview-tab-panel' + (boxActive ? '' : ' overview-tab-hidden') + '">' + boxContent + '</div>' +
+		'<div class="overview-tab-panel' + (!boxActive ? '' : ' overview-tab-hidden') + '">' + cemeteryContent + '</div>' +
+	'</div>';
+
+	return partyHtml + storageHtml;
+}
+
+function updateOverview(game) {
+	$('#' + game + '-overview').html(renderOverview(game));
+}
+
 function renderMain() {
 	let linksString = '';
 	let segmentsString = '';
@@ -44,6 +148,7 @@ function renderMain() {
 					'<button class="ui basic icon button gameSettings" title="Game settings"><i class="settings icon"></i></button>' +
 				'</div>' +
 			'</div>' +
+			'<div id="' + games[game].id + '-overview" class="pokemon-overview"></div>' +
 			'<div class="filter-bar">' +
 				'<span class="filter-label">Show:</span>' +
 				'<label class="filter-item"><input type="checkbox" class="filter-checkbox" data-filter="missed" checked> Missed</label>' +
@@ -437,6 +542,7 @@ function initTab(tab) {
 				row.removeClass('status-inparty status-stored status-missed status-deceased');
 				if (value) row.addClass('status-' + value);
 				applyFilters(tab);
+				updateOverview(tab);
 			}
 		},
 	});
@@ -451,6 +557,7 @@ function initTab(tab) {
 				elm.data('name', name);
 				localStorage.setItem(elm.data('nameKey'), regex.exec(name));
 				localStorage.setItem(elm.prop('id'), value);
+				updateOverview(tab);
 				elm.find('.search').blur();
 			}
 		},
@@ -595,6 +702,7 @@ function updateTab(game) {
 	initTab(game);
 	updateTableMode(game);
 	applyFilters(game);
+	updateOverview(game);
 
 	games[game].loaded = true;
 }
@@ -644,6 +752,8 @@ $(() => {
 			elm.closest('td').data('sortValue', '');
 			localStorage.removeItem(elm.prop('id'));
 		}
+		const nicknameGame = elm.closest('[data-tab]').data('tab');
+		if (nicknameGame) updateOverview(nicknameGame);
 	}).on('click', '.addLocationRow', function() {
 		$('#locationModal').data('sourceLocation', $(this).data('locationValue'));
 		$('#locationModal').modal('show');
@@ -652,6 +762,7 @@ $(() => {
 		localStorage.setItem(selectedGame + '-soullink-mode', String(soulLink));
 		$('#playerNamesSection').toggle(soulLink);
 		updateTableMode(selectedGame);
+		updateOverview(selectedGame);
 	}).on('input', '#playerAName', function() {
 		const val = $(this).val().trim();
 		if (val) {
@@ -660,6 +771,7 @@ $(() => {
 			localStorage.removeItem(selectedGame + '-player-a-name');
 		}
 		updateTableMode(selectedGame);
+		updateOverview(selectedGame);
 	}).on('input', '#playerBName', function() {
 		const val = $(this).val().trim();
 		if (val) {
@@ -668,9 +780,28 @@ $(() => {
 			localStorage.removeItem(selectedGame + '-player-b-name');
 		}
 		updateTableMode(selectedGame);
+		updateOverview(selectedGame);
 	}).on('change', '.filter-checkbox', function() {
 		const game = $(this).closest('[data-tab]').data('tab');
 		applyFilters(game);
+	}).on('click', '.overview-tab', function() {
+		const game = $(this).data('game');
+		const tab = $(this).data('storageTab');
+		localStorage.setItem(game + '-storage-tab', tab);
+		updateOverview(game);
+	}).on('click', '.overview-party-pkmn', function() {
+		const game = $(this).data('game');
+		const loc = $(this).data('loc');
+		$('#' + game + loc + '-status').dropdown('set selected', 'stored');
+	}).on('click', '.overview-box-pkmn', function() {
+		const game = $(this).data('game');
+		const loc = $(this).data('loc');
+		const partyCount = games[game].locations.filter(function(location) {
+			return localStorage.getItem(game + location.value + '-status') === 'inparty';
+		}).length;
+		if (partyCount < 6) {
+			$('#' + game + loc + '-status').dropdown('set selected', 'inparty');
+		}
 	});
 
 	$('#resetModal').modal({
@@ -782,4 +913,5 @@ $(() => {
 	initTab(selectedGame);
 	updateTableMode(selectedGame);
 	applyFilters(selectedGame);
+	updateOverview(selectedGame);
 });
